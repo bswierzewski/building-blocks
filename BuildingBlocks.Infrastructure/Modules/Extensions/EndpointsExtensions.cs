@@ -13,7 +13,7 @@ public static class EndpointsExtensions
     /// </summary>
     public static void MapModuleEndpoints(this WebApplication app)
     {
-        var modules = app.Services.GetServices<IEndpointModule>();
+        var modules = app.Services.GetServices<IModuleEndpoint>();
 
         foreach (var module in modules)
             module.MapEndpoints(app);
