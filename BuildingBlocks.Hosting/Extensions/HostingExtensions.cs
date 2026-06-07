@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
@@ -7,13 +8,15 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using BuildingBlocks.Hosting.Models;
 
 namespace BuildingBlocks.Hosting.Extensions;
 
 public static class HostingExtensions
 {
-    private const string HealthEndpointPath = "/health";
-    private const string AlivenessEndpointPath = "/alive";
+    private const string HealthEndpointPath = "/api/health";
+    private const string AlivenessEndpointPath = "/api/alive";
+    private const string VersionEndpointPath = "/api/version";
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
@@ -84,16 +87,63 @@ public static class HostingExtensions
 
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapHealthChecks(HealthEndpointPath);
+        app.MapGet(VersionEndpointPath, () => GetApplicationVersion(app))
+        .WithName("GetApplicationVersion")
+        .WithSummary("Get the running application version information.")
+        .WithTags("System")
+        .Produces<ApplicationVersionResponse>(StatusCodes.Status200OK);
 
-            app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
-            {
-                Predicate = r => r.Tags.Contains("live")
-            });
-        }
+        app.MapGet(HealthEndpointPath, (HealthCheckService healthChecks, CancellationToken cancellationToken) =>
+            GetApplicationHealth(healthChecks, cancellationToken))
+        .WithName("GetApplicationHealth")
+        .WithSummary("Get the application health status.")
+        .WithTags("System")
+        .Produces<ApplicationHealthResponse>(StatusCodes.Status200OK)
+        .Produces<ApplicationHealthResponse>(StatusCodes.Status503ServiceUnavailable);
+
+        app.MapGet(AlivenessEndpointPath, (HealthCheckService healthChecks, CancellationToken cancellationToken) =>
+            GetApplicationAliveness(healthChecks, cancellationToken))
+        .WithName("GetApplicationAliveness")
+        .WithSummary("Get the application liveness status.")
+        .WithTags("System")
+        .Produces<ApplicationHealthResponse>(StatusCodes.Status200OK)
+        .Produces<ApplicationHealthResponse>(StatusCodes.Status503ServiceUnavailable);
 
         return app;
+    }
+
+    private static Ok<ApplicationVersionResponse> GetApplicationVersion(WebApplication app)
+    {
+        var response = new ApplicationVersionResponse(
+            GitSha: Environment.GetEnvironmentVariable("GIT_SHA") ?? "unknown");
+
+        return TypedResults.Ok(response);
+    }
+
+    private static async Task<Results<Ok<ApplicationHealthResponse>, JsonHttpResult<ApplicationHealthResponse>>> GetApplicationHealth(
+        HealthCheckService healthChecks,
+        CancellationToken cancellationToken)
+    {
+        var report = await healthChecks.CheckHealthAsync(cancellationToken);
+        var response = new ApplicationHealthResponse(report.Status.ToString());
+
+        return report.Status == HealthStatus.Healthy
+            ? TypedResults.Ok(response)
+            : TypedResults.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+
+    private static async Task<Results<Ok<ApplicationHealthResponse>, JsonHttpResult<ApplicationHealthResponse>>> GetApplicationAliveness(
+        HealthCheckService healthChecks,
+        CancellationToken cancellationToken)
+    {
+        var report = await healthChecks.CheckHealthAsync(
+            registration => registration.Tags.Contains("live"),
+            cancellationToken);
+
+        var response = new ApplicationHealthResponse(report.Status.ToString());
+
+        return report.Status == HealthStatus.Healthy
+            ? TypedResults.Ok(response)
+            : TypedResults.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
     }
 }
