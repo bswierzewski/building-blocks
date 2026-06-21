@@ -9,7 +9,7 @@ namespace BuildingBlocks.Tests.Integration.Fixtures;
 /// <summary>
 /// Shared PostgreSQL test fixture that owns the Testcontainers instance and Respawn reset pipeline.
 /// </summary>
-public sealed class DatabaseFixture : IAsyncLifetime
+public class DatabaseFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _dbContainer;
     private Respawner? _respawner;
@@ -19,6 +19,18 @@ public sealed class DatabaseFixture : IAsyncLifetime
     /// Connection string exposed to integration hosts and direct database access in tests.
     /// </summary>
     public string ConnectionString => _dbContainer.GetConnectionString();
+
+    /// <summary>
+    /// Database schemas whose data should be reset between tests.
+    /// Override this property in a project-specific fixture when the application uses custom schemas.
+    /// </summary>
+    protected virtual string[] SchemasToInclude => ["public", "wolverine"];
+
+    /// <summary>
+    /// Tables that should be preserved during a database reset.
+    /// Override this property in a project-specific fixture to preserve module migration history tables.
+    /// </summary>
+    protected virtual Table[] TablesToIgnore => [new("public", "__EFMigrationsHistory")];
 
     public DatabaseFixture()
     {
@@ -53,11 +65,8 @@ public sealed class DatabaseFixture : IAsyncLifetime
             _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
             {
                 DbAdapter = DbAdapter.Postgres,
-                SchemasToInclude = ["public", "wolverine"],
-                TablesToIgnore =
-                [
-                    new Table("public", "__EFMigrationsHistory")
-                ]
+                SchemasToInclude = SchemasToInclude,
+                TablesToIgnore = TablesToIgnore
             });
         }
 

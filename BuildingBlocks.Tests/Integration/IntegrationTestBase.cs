@@ -1,5 +1,6 @@
 using Alba;
 using Alba.Security;
+using BuildingBlocks.Infrastructure.Modules.Extensions;
 using BuildingBlocks.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -55,6 +56,7 @@ public abstract class IntegrationTestBase<TEntryPoint>(DatabaseFixture databaseF
             builder.ConfigureServices((_, services) => OnConfigureServices(services));
         }, ConfigurationOverride.Create(configValues), _jwtSecurity);
 
+        await Host.Services.ApplyModuleMigrationsAsync();
         await ResetDatabaseAsync();
         await OnInitializeAsync(Host.Services);
     }
