@@ -16,6 +16,11 @@ public interface ICurrentUser
     bool IsAuthenticated { get; }
 
     /// <summary>
+    /// Gets the admin-controlled approval status of the current user.
+    /// </summary>
+    UserStatus Status { get; }
+
+    /// <summary>
     /// Gets the collection of roles assigned to the current user.
     /// </summary>
     IReadOnlySet<string> Roles { get; }

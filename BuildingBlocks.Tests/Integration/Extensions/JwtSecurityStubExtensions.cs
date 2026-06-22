@@ -44,6 +44,9 @@ public static class JwtSecurityStubExtensions
         if (!string.IsNullOrWhiteSpace(currentUser.Id))
             yield return new Claim(CustomClaimTypes.Sub, currentUser.Id);
 
+        if (currentUser.Status != UserStatus.None)
+            yield return new Claim(CustomClaimTypes.UserStatus, currentUser.Status.ToString());
+
         foreach (var role in currentUser.Roles)
             yield return new Claim(CustomClaimTypes.Roles, role);
 

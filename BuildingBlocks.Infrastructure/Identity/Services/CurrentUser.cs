@@ -15,6 +15,9 @@ public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICur
 
     public bool IsAuthenticated => Principal.Identity?.IsAuthenticated == true;
 
+    public UserStatus Status =>
+        Enum.TryParse(Principal.FindFirstValue(CustomClaimTypes.UserStatus), ignoreCase: true, out UserStatus status) ? status : default;
+
     public IReadOnlySet<string> Roles =>
         Principal.FindAll(CustomClaimTypes.Roles).Select(c => c.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
 

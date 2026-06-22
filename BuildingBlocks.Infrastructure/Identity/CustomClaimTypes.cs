@@ -14,4 +14,7 @@ public static class CustomClaimTypes
 
     /// <summary>Permission codes derived from roles by <see cref="Services.PermissionClaimsTransformation"/>.</summary>
     public const string Permission = "permissions";
+
+    /// <summary>User approval status set by an admin in Clerk public metadata ('status' in JWT).</summary>
+    public const string UserStatus = "status";
 }
