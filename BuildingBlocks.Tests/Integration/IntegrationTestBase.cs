@@ -1,6 +1,4 @@
 using Alba;
-using Alba.Security;
-using BuildingBlocks.Infrastructure.Modules.Extensions;
 using BuildingBlocks.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -11,64 +9,65 @@ namespace BuildingBlocks.Tests.Integration;
 /// Base class for Alba-backed integration tests that configures the test host and resets the shared database before each test initialization.
 /// </summary>
 /// <typeparam name="TEntryPoint">Application entry point used to bootstrap the in-memory host.</typeparam>
-public abstract class IntegrationTestBase<TEntryPoint>(DatabaseFixture databaseFixture) : IAsyncLifetime where TEntryPoint : class
+/// <typeparam name="TDatabaseFixture">Collection fixture type that owns the shared test database.</typeparam>
+public abstract class IntegrationTestBase<TEntryPoint, TDatabaseFixture>(
+    TDatabaseFixture databaseFixture,
+    HostFixture<TEntryPoint> hostFixture) : IAsyncLifetime, IClassFixture<HostFixture<TEntryPoint>>
+    where TEntryPoint : class
+    where TDatabaseFixture : DatabaseFixture
 {
-    private readonly DatabaseFixture _dbFixture = databaseFixture;
-    private readonly JwtSecurityStub _jwtSecurity = new();
+    /// <summary>
+    /// Running Alba host shared by all tests in the current test class.
+    /// </summary>
+    public IAlbaHost Host => hostFixture.Host;
 
     /// <summary>
-    /// Running Alba host for the current test instance.
+    /// Services from the host shared by all tests in the current test class.
     /// </summary>
-    public IAlbaHost Host { get; private set; } = default!;
+    protected IServiceProvider Services => Host.Services;
 
     /// <summary>
-    /// Allows a test class to replace or extend DI registrations before the host is built.
+    /// Allows the test class to override configuration before its host is built.
+    /// Called once for the lifetime of the test class.
     /// </summary>
-    protected virtual void OnConfigureServices(IServiceCollection services) { }
+    protected virtual void ConfigureHost(IDictionary<string, string?> configuration) { }
+
+    /// <summary>
+    /// Allows the test class to replace or extend registrations before its host is built.
+    /// Called once for the lifetime of the test class.
+    /// </summary>
+    protected virtual void ConfigureServices(IServiceCollection services) { }
 
     /// <summary>
     /// Runs after the database reset and lets a test class seed data or prepare per-test state.
     /// </summary>
-    protected virtual Task OnInitializeAsync(IServiceProvider services) => Task.CompletedTask;
+    protected virtual Task BeforeEachAsync() => Task.CompletedTask;
 
     /// <summary>
-    /// Runs before the host is disposed and can be used for additional cleanup.
+    /// Runs after each test and can be used for additional cleanup.
     /// </summary>
-    protected virtual Task OnDisposeAsync() => Task.CompletedTask;
+    protected virtual Task AfterEachAsync() => Task.CompletedTask;
 
     /// <summary>
-    /// Resets the shared database fixture to a clean state for the current test.
-    /// </summary>
-    public Task ResetDatabaseAsync() => _dbFixture.ResetDatabaseAsync();
-
-    /// <summary>
-    /// Builds the Alba host, resets the database, and invokes the test-specific initialization hook.
+    /// Resets the database and invokes the test-specific initialization hook.
     /// </summary>
     public async ValueTask InitializeAsync()
     {
-        var configValues = new Dictionary<string, string?>
-        {
-            ["ConnectionStrings:Default"] = _dbFixture.ConnectionString
-        };
-
-        Host = await AlbaHost.For<TEntryPoint>(builder =>
-        {
-            builder.ConfigureServices((_, services) => OnConfigureServices(services));
-        }, ConfigurationOverride.Create(configValues), _jwtSecurity);
-
-        await Host.Services.ApplyModuleMigrationsAsync();
-        await ResetDatabaseAsync();
-        await OnInitializeAsync(Host.Services);
+        // Host startup needs the database connection string, while migrations need the started host services.
+        await hostFixture.StartAsync(
+            databaseFixture.ConnectionString,
+            ConfigureHost,
+            ConfigureServices);
+        await databaseFixture.ApplyMigrationsAsync(Host.Services);
+        await databaseFixture.ResetDatabaseAsync();
+        await BeforeEachAsync();
     }
 
     /// <summary>
-    /// Invokes the disposal hook and tears down the Alba host.
+    /// Invokes the per-test disposal hook. The class fixture disposes the host after the final test.
     /// </summary>
     public async ValueTask DisposeAsync()
     {
-        await OnDisposeAsync();
-
-        if (Host != null)
-            await Host.DisposeAsync();
+        await AfterEachAsync();
     }
 }
