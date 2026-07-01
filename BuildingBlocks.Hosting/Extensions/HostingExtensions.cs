@@ -16,7 +16,6 @@ public static class HostingExtensions
 {
     private const string HealthEndpointPath = "/api/health";
     private const string AlivenessEndpointPath = "/api/alive";
-    private const string VersionEndpointPath = "/api/version";
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
@@ -87,12 +86,6 @@ public static class HostingExtensions
 
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
-        app.MapGet(VersionEndpointPath, () => GetApplicationVersion(app))
-        .WithName("GetApplicationVersion")
-        .WithSummary("Get the running application version information.")
-        .WithTags("System")
-        .Produces<ApplicationVersionResponse>(StatusCodes.Status200OK);
-
         app.MapGet(HealthEndpointPath, (HealthCheckService healthChecks, CancellationToken cancellationToken) =>
             GetApplicationHealth(healthChecks, cancellationToken))
         .WithName("GetApplicationHealth")
@@ -110,14 +103,6 @@ public static class HostingExtensions
         .Produces<ApplicationHealthResponse>(StatusCodes.Status503ServiceUnavailable);
 
         return app;
-    }
-
-    private static Ok<ApplicationVersionResponse> GetApplicationVersion(WebApplication app)
-    {
-        var response = new ApplicationVersionResponse(
-            GitSha: Environment.GetEnvironmentVariable("GIT_SHA") ?? "unknown");
-
-        return TypedResults.Ok(response);
     }
 
     private static async Task<Results<Ok<ApplicationHealthResponse>, JsonHttpResult<ApplicationHealthResponse>>> GetApplicationHealth(
