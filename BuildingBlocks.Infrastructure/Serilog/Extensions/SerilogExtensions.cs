@@ -1,8 +1,8 @@
+using BuildingBlocks.Infrastructure.Serilog.Builders;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Enrichers.Span;
 using Serilog.Events;
-using BuildingBlocks.Infrastructure.Serilog.Builders;
 
 namespace BuildingBlocks.Infrastructure.Serilog.Extensions;
 

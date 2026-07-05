@@ -77,16 +77,13 @@ public abstract class DatabaseFixture : IAsyncLifetime
         if (_dbConnection is null)
             throw new InvalidOperationException("The database fixture has not been initialized.");
 
-        if (_respawner is null)
+        // Building blocks always include common infrastructure schemas; projects append their module schemas.
+        _respawner ??= await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
         {
-            // Building blocks always include common infrastructure schemas; projects append their module schemas.
-            _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
-            {
-                DbAdapter = DbAdapter.Postgres,
-                SchemasToInclude = ["public", "wolverine", .. SchemasToInclude],
-                TablesToIgnore = [new Table("public", "__EFMigrationsHistory"), .. TablesToIgnore]
-            });
-        }
+            DbAdapter = DbAdapter.Postgres,
+            SchemasToInclude = ["public", "wolverine", .. SchemasToInclude],
+            TablesToIgnore = [new Table("public", "__EFMigrationsHistory"), .. TablesToIgnore]
+        });
 
         await _respawner.ResetAsync(_dbConnection);
     }

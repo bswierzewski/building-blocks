@@ -36,9 +36,8 @@ public sealed record Role
     {
         ArgumentNullException.ThrowIfNull(permissions);
 
-        return permissions
+        return [.. permissions
             .DistinctBy(permission => permission.Code, StringComparer.OrdinalIgnoreCase)
-            .OrderBy(permission => permission.Code, StringComparer.Ordinal)
-            .ToArray();
+            .OrderBy(permission => permission.Code, StringComparer.Ordinal)];
     }
 }

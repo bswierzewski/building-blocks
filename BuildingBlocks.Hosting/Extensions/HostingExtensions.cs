@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Hosting.Models;
+using BuildingBlocks.Hosting.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;

@@ -1,6 +1,6 @@
+using System.Security.Claims;
 using BuildingBlocks.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 
 namespace BuildingBlocks.Infrastructure.Identity.Services;
 

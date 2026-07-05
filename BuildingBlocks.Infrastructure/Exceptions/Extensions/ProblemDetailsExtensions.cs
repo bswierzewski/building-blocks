@@ -1,5 +1,5 @@
-using BuildingBlocks.Core.Exceptions;
 using System.Diagnostics;
+using BuildingBlocks.Core.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 

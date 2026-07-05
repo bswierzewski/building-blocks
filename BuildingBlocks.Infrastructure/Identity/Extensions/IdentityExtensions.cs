@@ -49,7 +49,7 @@ public static class IdentityExtensions
                 options.TokenValidationParameters.ValidIssuer = identityOptions.Issuer;
                 options.TokenValidationParameters.ValidateIssuer = !string.IsNullOrWhiteSpace(identityOptions.Issuer);
 
-                // Clerk tokens do not include an 'aud' claim, so audience validation stays disabled unless explicitly configured.                
+                // Clerk tokens do not include an 'aud' claim, so audience validation stays disabled unless explicitly configured.
                 options.TokenValidationParameters.ValidAudience = identityOptions.Audience;
                 options.TokenValidationParameters.ValidateAudience = !string.IsNullOrWhiteSpace(identityOptions.Audience);
 

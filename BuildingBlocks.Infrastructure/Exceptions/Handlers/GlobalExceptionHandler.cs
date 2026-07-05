@@ -1,8 +1,8 @@
+using BuildingBlocks.Infrastructure.Exceptions.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using BuildingBlocks.Infrastructure.Exceptions.Extensions;
 
 namespace BuildingBlocks.Infrastructure.Exceptions.Handlers;
 

@@ -49,7 +49,7 @@ public static class WolverineExtensions
             // outbox and EF transaction wiring because both require a live PostgreSQL-backed data source.
             if (dataSource is not null)
             {
-                // Use the durable outbox pattern with PostgreSQL to ensure messages are not lost in the event of a failure 
+                // Use the durable outbox pattern with PostgreSQL to ensure messages are not lost in the event of a failure
                 opts.PersistMessagesWithPostgresql(dataSource, "wolverine");
 
                 // Enlist Wolverine in EF Core transactions so that message dispatch and database

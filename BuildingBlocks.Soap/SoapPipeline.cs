@@ -12,7 +12,7 @@ public sealed class SoapPipeline<TClient>(
     IEnumerable<SoapMiddleware<TClient>> middlewares)
     where TClient : ICommunicationObject
 {
-    private readonly IReadOnlyList<SoapMiddleware<TClient>> _middlewares = middlewares.ToList();
+    private readonly IReadOnlyList<SoapMiddleware<TClient>> _middlewares = [.. middlewares];
 
     /// <summary>
     /// Executes a SOAP operation that returns a result.
