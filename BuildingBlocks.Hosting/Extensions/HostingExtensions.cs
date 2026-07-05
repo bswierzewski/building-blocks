@@ -1,3 +1,4 @@
+﻿using BuildingBlocks.Hosting.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -8,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
-using BuildingBlocks.Hosting.Models;
 
 namespace BuildingBlocks.Hosting.Extensions;
 
@@ -105,30 +105,44 @@ public static class HostingExtensions
         return app;
     }
 
-    private static async Task<Results<Ok<ApplicationHealthResponse>, JsonHttpResult<ApplicationHealthResponse>>> GetApplicationHealth(
+    private static async Task<Results<Ok<ApplicationHealthResponse>, JsonHttpResult<ApplicationHealthResponse>, EmptyHttpResult>> GetApplicationHealth(
         HealthCheckService healthChecks,
         CancellationToken cancellationToken)
     {
-        var report = await healthChecks.CheckHealthAsync(cancellationToken);
-        var response = new ApplicationHealthResponse(report.Status.ToString());
+        try
+        {
+            var report = await healthChecks.CheckHealthAsync(cancellationToken);
+            var response = new ApplicationHealthResponse(report.Status.ToString());
 
-        return report.Status == HealthStatus.Healthy
-            ? TypedResults.Ok(response)
-            : TypedResults.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
+            return report.Status == HealthStatus.Healthy
+                ? TypedResults.Ok(response)
+                : TypedResults.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return TypedResults.Empty;
+        }
     }
 
-    private static async Task<Results<Ok<ApplicationHealthResponse>, JsonHttpResult<ApplicationHealthResponse>>> GetApplicationAliveness(
+    private static async Task<Results<Ok<ApplicationHealthResponse>, JsonHttpResult<ApplicationHealthResponse>, EmptyHttpResult>> GetApplicationAliveness(
         HealthCheckService healthChecks,
         CancellationToken cancellationToken)
     {
-        var report = await healthChecks.CheckHealthAsync(
-            registration => registration.Tags.Contains("live"),
-            cancellationToken);
+        try
+        {
+            var report = await healthChecks.CheckHealthAsync(
+                registration => registration.Tags.Contains("live"),
+                cancellationToken);
 
-        var response = new ApplicationHealthResponse(report.Status.ToString());
+            var response = new ApplicationHealthResponse(report.Status.ToString());
 
-        return report.Status == HealthStatus.Healthy
-            ? TypedResults.Ok(response)
-            : TypedResults.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
+            return report.Status == HealthStatus.Healthy
+                ? TypedResults.Ok(response)
+                : TypedResults.Json(response, statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return TypedResults.Empty;
+        }
     }
 }
