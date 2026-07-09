@@ -20,6 +20,10 @@ public static class ProblemDetailsExtensions
 
         return exception switch
         {
+            BadHttpRequestException ex => CreateProblemDetails(
+                StatusCodes.Status400BadRequest,
+                "Nieprawidłowe żądanie",
+                ex.Message),
             BuildingBlocks.Core.Exceptions.ValidationException ex => CreateProblemDetails(
                 StatusCodes.Status400BadRequest,
                 "Błędy walidacji",

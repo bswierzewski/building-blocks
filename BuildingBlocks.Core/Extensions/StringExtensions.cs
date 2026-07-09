@@ -8,10 +8,10 @@ public static class StringExtensions
     /// <summary>
     /// Trims text and collapses repeated whitespace into a single space.
     /// </summary>
-    public static string CleanWhitespace(this string? value)
+    public static string? CleanWhitespace(this string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return string.Empty;
+            return null;
 
         var parts = value.Trim()
             .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
