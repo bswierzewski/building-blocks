@@ -14,4 +14,10 @@ public static class CustomClaimTypes
 
     /// <summary>Permission codes derived from roles by <see cref="Services.PermissionClaimsTransformation"/>.</summary>
     public const string Permission = "permissions";
+
+    /// <summary>Tenant identifier assigned by application metadata ('tenantId' in JWT).</summary>
+    public const string TenantId = "tenantId";
+
+    /// <summary>Tenant role assigned by application metadata ('tenantRole' in JWT).</summary>
+    public const string TenantRole = "tenantRole";
 }

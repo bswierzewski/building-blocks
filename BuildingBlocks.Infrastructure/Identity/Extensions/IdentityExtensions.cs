@@ -2,6 +2,7 @@ using System.Text;
 using BuildingBlocks.Core.Interfaces;
 using BuildingBlocks.Infrastructure.Identity.Options;
 using BuildingBlocks.Infrastructure.Identity.Services;
+using BuildingBlocks.Infrastructure.Tenancy;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -30,6 +31,7 @@ public static class IdentityExtensions
             .ValidateDataAnnotations();
 
         services.TryAddScoped<ICurrentUser, CurrentUser>();
+        services.TryAddScoped<ICurrentTenant, CurrentTenant>();
         services.TryAddSingleton<RolePermissionService>();
         services.TryAddTransient<IClaimsTransformation, PermissionClaimsTransformation>();
 
