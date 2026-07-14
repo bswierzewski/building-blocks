@@ -2,6 +2,7 @@
   <Project Path="BuildingBlocks.Core/BuildingBlocks.Core.csproj" />
   <Project Path="BuildingBlocks.Hosting/BuildingBlocks.Hosting.csproj" />
   <Project Path="BuildingBlocks.Infrastructure/BuildingBlocks.Infrastructure.csproj" />
+  <Project Path="BuildingBlocks.Clerk/BuildingBlocks.Clerk.csproj" />
   <Project Path="BuildingBlocks.Soap/BuildingBlocks.Soap.csproj" />
   <Project Path="BuildingBlocks.Tests/BuildingBlocks.Tests.csproj" />
 </Solution>

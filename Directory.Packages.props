@@ -15,4 +15,5 @@
   <Import Project="BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.Packages.props" Condition="Exists('BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.Packages.props')" />
   <Import Project="BuildingBlocks.Tests\BuildingBlocks.Tests.Packages.props" Condition="Exists('BuildingBlocks.Tests\BuildingBlocks.Tests.Packages.props')" />
   <Import Project="BuildingBlocks.Soap\BuildingBlocks.Soap.Packages.props" Condition="Exists('BuildingBlocks.Soap\BuildingBlocks.Soap.Packages.props')" />
+  <Import Project="BuildingBlocks.Clerk\BuildingBlocks.Clerk.Packages.props" Condition="Exists('BuildingBlocks.Clerk\BuildingBlocks.Clerk.Packages.props')" />
 </Project>

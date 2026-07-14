@@ -1,5 +1,4 @@
 using Alba;
-using Alba.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -12,7 +11,6 @@ namespace BuildingBlocks.Tests.Integration.Fixtures;
 public class HostFixture<TEntryPoint> : IAsyncLifetime
     where TEntryPoint : class
 {
-    private readonly JwtSecurityStub _jwtSecurity = new();
     private readonly SemaphoreSlim _hostLock = new(1, 1);
     private bool _started;
 
@@ -56,7 +54,7 @@ public class HostFixture<TEntryPoint> : IAsyncLifetime
             Host = await AlbaHost.For<TEntryPoint>(builder =>
             {
                 builder.ConfigureServices((_, services) => configureServices(services));
-            }, ConfigurationOverride.Create(configuration), _jwtSecurity);
+            }, [ConfigurationOverride.Create(configuration)]);
 
             _started = true;
         }
