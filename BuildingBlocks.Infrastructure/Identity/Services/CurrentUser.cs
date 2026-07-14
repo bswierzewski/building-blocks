@@ -13,6 +13,10 @@ public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICur
 
     public string Id => Principal.FindFirstValue(CustomClaimTypes.Sub) ?? string.Empty;
 
+    public string? Email => Normalize(Principal.FindFirstValue(CustomClaimTypes.Email));
+
+    public string? DisplayName => Normalize(Principal.FindFirstValue(CustomClaimTypes.Name));
+
     public bool IsAuthenticated => Principal.Identity?.IsAuthenticated == true;
 
     public IReadOnlySet<string> Roles =>
@@ -23,4 +27,7 @@ public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICur
 
     public bool HasPermission(string permission) =>
         Principal.HasClaim(CustomClaimTypes.Permission, permission);
+
+    private static string? Normalize(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

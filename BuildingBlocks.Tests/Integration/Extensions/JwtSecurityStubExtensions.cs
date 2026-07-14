@@ -44,6 +44,12 @@ public static class JwtSecurityStubExtensions
         if (!string.IsNullOrWhiteSpace(currentUser.Id))
             yield return new Claim(CustomClaimTypes.Sub, currentUser.Id);
 
+        if (!string.IsNullOrWhiteSpace(currentUser.Email))
+            yield return new Claim(CustomClaimTypes.Email, currentUser.Email);
+
+        if (!string.IsNullOrWhiteSpace(currentUser.DisplayName))
+            yield return new Claim(CustomClaimTypes.Name, currentUser.DisplayName);
+
         foreach (var role in currentUser.Roles)
             yield return new Claim(CustomClaimTypes.Roles, role);
 
