@@ -1,8 +1,7 @@
 using BuildingBlocks.Core.Interfaces;
-using BuildingBlocks.Infrastructure.Identity;
 using Microsoft.AspNetCore.Http;
 
-namespace BuildingBlocks.Infrastructure.Tenancy;
+namespace BuildingBlocks.Infrastructure.Identity.Services;
 
 /// <summary>
 /// Reads the current tenant context directly from JWT claims.
@@ -14,6 +13,4 @@ public sealed class CurrentTenant(IHttpContextAccessor httpContextAccessor) : IC
         out var tenantId)
             ? tenantId
             : null;
-
-    public bool IsAvailable => Id.HasValue;
 }

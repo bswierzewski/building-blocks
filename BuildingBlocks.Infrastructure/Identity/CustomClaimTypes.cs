@@ -24,6 +24,4 @@ public static class CustomClaimTypes
     /// <summary>Tenant identifier assigned by application metadata ('tenantId' in JWT).</summary>
     public const string TenantId = "tenantId";
 
-    /// <summary>Tenant role assigned by application metadata ('tenantRole' in JWT).</summary>
-    public const string TenantRole = "tenantRole";
 }
