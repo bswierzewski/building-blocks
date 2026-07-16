@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace BuildingBlocks.Clerk.Client.Models;
 
 /// <summary>
-/// Minimal Clerk user projection used to resolve a user before granting tenant access.
+/// Minimal Clerk user projection used to resolve a user before granting organization access.
 /// </summary>
 public sealed record ClerkUserResponse(
     [property: JsonPropertyName("id")]

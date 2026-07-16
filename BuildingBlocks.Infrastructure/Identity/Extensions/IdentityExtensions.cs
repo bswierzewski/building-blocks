@@ -30,7 +30,7 @@ public static class IdentityExtensions
             .ValidateDataAnnotations();
 
         services.TryAddScoped<ICurrentUser, CurrentUser>();
-        services.TryAddScoped<ICurrentTenant, CurrentTenant>();
+        services.TryAddScoped<ICurrentOrganization, CurrentOrganization>();
         services.TryAddSingleton<RolePermissionService>();
         services.TryAddTransient<IClaimsTransformation, PermissionClaimsTransformation>();
 
