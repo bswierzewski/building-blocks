@@ -1,7 +1,7 @@
-using BuildingBlocks.Core.Interfaces;
-using BuildingBlocks.Clerk.Options;
 using BuildingBlocks.Clerk.Client;
 using BuildingBlocks.Clerk.Client.Handlers;
+using BuildingBlocks.Clerk.Options;
+using BuildingBlocks.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
