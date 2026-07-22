@@ -90,6 +90,7 @@ public static class HostingExtensions
             GetApplicationHealth(healthChecks, cancellationToken))
         .WithName("GetApplicationHealth")
         .WithSummary("Get the application health status.")
+        .WithDescription("Returns the aggregated health status of the application and its dependencies.")
         .WithTags("System")
         .Produces<ApplicationHealthResponse>(StatusCodes.Status200OK)
         .Produces<ApplicationHealthResponse>(StatusCodes.Status503ServiceUnavailable);
@@ -98,6 +99,7 @@ public static class HostingExtensions
             GetApplicationAliveness(healthChecks, cancellationToken))
         .WithName("GetApplicationAliveness")
         .WithSummary("Get the application liveness status.")
+        .WithDescription("Returns the application's liveness status based on its self check.")
         .WithTags("System")
         .Produces<ApplicationHealthResponse>(StatusCodes.Status200OK)
         .Produces<ApplicationHealthResponse>(StatusCodes.Status503ServiceUnavailable);
