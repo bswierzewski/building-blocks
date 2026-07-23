@@ -17,6 +17,25 @@ public interface IClerkHttpClient
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Finds Clerk users with the supplied user ID.
+    /// </summary>
+    [Get("/v1/users?user_id={userId}")]
+    Task<IReadOnlyList<ClerkUserResponse>> GetUsersByUserIdAsync(
+        string userId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates public metadata for a Clerk user.
+    /// </summary>
+    [Patch("/v1/users/{userId}/metadata")]
+    Task UpdateUserMetadataAsync(
+        string userId,
+        [Body] UpdateClerkUserMetadataRequest request,
+        CancellationToken cancellationToken = default);
+
+    // Testing endpoints, is only used by integration tests.
+
+    /// <summary>
     /// Creates a new Clerk session for the supplied user.
     /// </summary>
     [Post("/v1/sessions")]
@@ -31,14 +50,5 @@ public interface IClerkHttpClient
     Task<CreateClerkSessionTokenResponse> CreateSessionTokenAsync(
         string sessionId,
         [Body] CreateClerkSessionTokenRequest request,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Updates public metadata for a Clerk user.
-    /// </summary>
-    [Patch("/v1/users/{userId}/metadata")]
-    Task UpdateUserMetadataAsync(
-        string userId,
-        [Body] UpdateClerkUserMetadataRequest request,
         CancellationToken cancellationToken = default);
 }
