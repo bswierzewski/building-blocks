@@ -1,3 +1,4 @@
+using System.Reflection;
 using BuildingBlocks.Hosting.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +17,7 @@ public static class HostingExtensions
 {
     private const string HealthEndpointPath = "/api/health";
     private const string AlivenessEndpointPath = "/api/alive";
+    private const string VersionEndpointPath = "/api/version";
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
@@ -104,7 +106,37 @@ public static class HostingExtensions
         .Produces<ApplicationHealthResponse>(StatusCodes.Status200OK)
         .Produces<ApplicationHealthResponse>(StatusCodes.Status503ServiceUnavailable);
 
+        app.MapGet(VersionEndpointPath, (IHostEnvironment environment) =>
+            TypedResults.Ok(GetVersion(environment)))
+        .WithName("GetVersion")
+        .WithSummary("Get the application version.")
+        .WithDescription("Returns the source revision used to build the application.")
+        .WithTags("System")
+        .AllowAnonymous()
+        .Produces<VersionResponse>(StatusCodes.Status200OK);
+
         return app;
+    }
+
+    private static VersionResponse GetVersion(IHostEnvironment environment)
+    {
+        var assembly = Assembly.Load(environment.ApplicationName);
+        var informationalVersion = assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion;
+
+        if (string.IsNullOrWhiteSpace(informationalVersion))
+        {
+            return new VersionResponse("unknown");
+        }
+
+        var sourceRevisionSeparator = informationalVersion.LastIndexOf('+');
+        if (sourceRevisionSeparator < 0 || sourceRevisionSeparator == informationalVersion.Length - 1)
+        {
+            return new VersionResponse("unknown");
+        }
+
+        return new VersionResponse(informationalVersion[(sourceRevisionSeparator + 1)..]);
     }
 
     private static async Task<Results<Ok<ApplicationHealthResponse>, JsonHttpResult<ApplicationHealthResponse>, EmptyHttpResult>> GetApplicationHealth(
