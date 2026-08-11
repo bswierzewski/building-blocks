@@ -32,7 +32,7 @@ public static class IdentityExtensions
         services.TryAddScoped<ICurrentUser, CurrentUser>();
         services.TryAddScoped<ICurrentOrganization, CurrentOrganization>();
         services.TryAddSingleton<RolePermissionService>();
-        services.TryAddTransient<IClaimsTransformation, PermissionClaimsTransformation>();
+        services.TryAddTransient<IClaimsTransformation, ClaimsTransformation>();
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

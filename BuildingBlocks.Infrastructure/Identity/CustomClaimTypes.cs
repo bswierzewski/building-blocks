@@ -18,7 +18,7 @@ public static class CustomClaimTypes
     /// <summary>Roles assigned to the user ('roles' in JWT).</summary>
     public const string Roles = "roles";
 
-    /// <summary>Permission codes derived from roles by <see cref="Services.PermissionClaimsTransformation"/>.</summary>
+    /// <summary>Permission codes derived from roles by <see cref="Services.ClaimsTransformation"/>.</summary>
     public const string Permission = "permissions";
 
     /// <summary>Organization identifier assigned by application metadata ('organizationId' in JWT).</summary>
