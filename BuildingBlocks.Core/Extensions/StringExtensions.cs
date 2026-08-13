@@ -29,4 +29,14 @@ public static class StringExtensions
 
         return string.Join(' ', parts);
     }
+
+    /// <summary>
+    /// Trims text and collapses repeated whitespace into a single space,
+    /// returning <see langword="null"/> when no text remains.
+    /// </summary>
+    public static string? CleanWhitespaceOrNull(this string? value)
+    {
+        var cleaned = value.CleanWhitespace();
+        return cleaned.Length == 0 ? null : cleaned;
+    }
 }
