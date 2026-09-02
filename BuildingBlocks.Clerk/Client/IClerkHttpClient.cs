@@ -33,6 +33,24 @@ public interface IClerkHttpClient
         [Body] UpdateClerkUserMetadataRequest request,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Lists active sessions for the supplied user.
+    /// </summary>
+    [Get("/v1/sessions?status=active")]
+    Task<IReadOnlyList<ClerkSessionResponse>> GetActiveSessionsAsync(
+        [AliasAs("user_id")] string userId,
+        [AliasAs("limit")] int limit,
+        [AliasAs("offset")] int offset,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Revokes a Clerk session and signs its user out from the associated client.
+    /// </summary>
+    [Post("/v1/sessions/{sessionId}/revoke")]
+    Task RevokeSessionAsync(
+        string sessionId,
+        CancellationToken cancellationToken = default);
+
     // Testing endpoints, is only used by integration tests.
 
     /// <summary>
