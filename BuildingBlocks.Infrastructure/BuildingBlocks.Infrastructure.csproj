@@ -6,6 +6,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Refit exception handling -->
+    <PackageReference Include="Refit" />
+
     <!-- Authentication -->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
 
@@ -34,6 +37,7 @@
     <!-- WolverineFx -->
     <PackageReference Include="JasperFx" />
     <PackageReference Include="WolverineFx" />
+    <PackageReference Include="WolverineFx.RuntimeCompilation" />
     <PackageReference Include="WolverineFx.EntityFrameworkCore" />
     <PackageReference Include="WolverineFx.FluentValidation" />
     <PackageReference Include="WolverineFx.Postgresql" />

@@ -1,14 +1,14 @@
 <Project>
   <ItemGroup>
     <!-- Testing Framework -->
-    <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2" />
+    <PackageVersion Include="xunit.v3.extensibility.core" Version="4.0.0" />
 
     <!-- Integration Testing -->
-    <PackageVersion Include="Alba" Version="8.5.2" />
+    <PackageVersion Include="Alba" Version="8.5.3" />
     <PackageVersion Include="Respawn" Version="7.0.0" />
-    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.12.0" />
+    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.14.0" />
 
     <!-- End-To-End Testing -->
-    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.3.4" />
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.5.3" />
   </ItemGroup>
 </Project>
