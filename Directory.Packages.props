@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <!-- Security overrides for transitive dependencies -->
-    <PackageVersion Include="MessagePack" Version="2.5.301" />
+    <PackageVersion Include="MessagePack" Version="3.1.8" />
     <PackageVersion Include="Microsoft.OpenApi" Version="2.9.0" />
     <PackageVersion Include="SSH.NET" Version="2026.0.0" />
   </ItemGroup>
