@@ -1,5 +1,2 @@
 <Project>
-  <ItemGroup>
-    <PackageVersion Include="Refit.HttpClientFactory" Version="11.2.0" />
-  </ItemGroup>
 </Project>

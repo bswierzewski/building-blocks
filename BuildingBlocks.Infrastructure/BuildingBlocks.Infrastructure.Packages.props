@@ -1,8 +1,5 @@
 <Project>
   <ItemGroup>
-    <!-- Refit exception handling -->
-    <PackageVersion Include="Refit" Version="15.2.0" />
-
     <!-- Authentication -->
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
 

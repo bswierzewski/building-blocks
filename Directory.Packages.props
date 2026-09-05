@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Refit -->
+    <PackageVersion Include="Refit" Version="15.2.0" />
+    <PackageVersion Include="Refit.HttpClientFactory" Version="15.2.0" />
+    <PackageVersion Include="Refit.Reflection" Version="15.2.0" />
+
     <!-- Security overrides for transitive dependencies -->
     <PackageVersion Include="MessagePack" Version="3.1.8" />
     <PackageVersion Include="Microsoft.OpenApi" Version="2.9.0" />
