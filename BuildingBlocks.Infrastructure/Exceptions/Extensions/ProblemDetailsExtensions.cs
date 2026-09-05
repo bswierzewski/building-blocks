@@ -2,6 +2,7 @@ using System.Diagnostics;
 using BuildingBlocks.Core.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
+using Refit;
 
 namespace BuildingBlocks.Infrastructure.Exceptions.Extensions;
 
@@ -11,20 +12,28 @@ namespace BuildingBlocks.Infrastructure.Exceptions.Extensions;
 public static class ProblemDetailsExtensions
 {
     /// <summary>
-    /// Maps known application exceptions to a unified validation-style problem payload.
+    /// Maps known exceptions to a unified validation-style problem payload.
     /// </summary>
-    public static HttpValidationProblemDetails ToValidationProblemDetails(this Exception exception, IHostEnvironment env)
+    public static HttpValidationProblemDetails ToProblemDetails(this Exception exception, IHostEnvironment env)
     {
         ArgumentNullException.ThrowIfNull(exception);
         ArgumentNullException.ThrowIfNull(env);
 
         return exception switch
         {
+            ApiException ex => CreateProblemDetails(
+                StatusCodes.Status502BadGateway,
+                "Błąd usługi zewnętrznej",
+                string.IsNullOrWhiteSpace(ex.Content) ? "Usługa zewnętrzna zwróciła błąd." : ex.Content),
+            ApiRequestException => CreateProblemDetails(
+                StatusCodes.Status502BadGateway,
+                "Błąd usługi zewnętrznej",
+                "Nie udało się połączyć z usługą zewnętrzną."),
             BadHttpRequestException ex => CreateProblemDetails(
                 StatusCodes.Status400BadRequest,
                 "Nieprawidłowe żądanie",
                 ex.Message),
-            BuildingBlocks.Core.Exceptions.ValidationException ex => CreateProblemDetails(
+            ValidationException ex => CreateProblemDetails(
                 StatusCodes.Status400BadRequest,
                 "Błędy walidacji",
                 ex.Message,

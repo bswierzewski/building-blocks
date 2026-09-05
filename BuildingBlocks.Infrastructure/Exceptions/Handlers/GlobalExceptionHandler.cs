@@ -16,9 +16,12 @@ public sealed class GlobalExceptionHandler(
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
+        if (exception is OperationCanceledException && httpContext.RequestAborted.IsCancellationRequested)
+            return false;
+
         logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
 
-        var problemDetails = exception.ToValidationProblemDetails(env);
+        var problemDetails = exception.ToProblemDetails(env);
 
         httpContext.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
 
