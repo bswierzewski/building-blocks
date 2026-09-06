@@ -1,6 +1,8 @@
 using BuildingBlocks.Core.Interfaces;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Refit;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.FluentValidation;
@@ -44,6 +46,18 @@ public static class WolverineExtensions
             // rather than chaining them into a single pipeline. Prevents unintentional fan-out.
             opts.MultipleHandlerBehavior = MultipleHandlerBehavior.Separated;
 
+            // Refit clients are registered by HttpClientFactory through opaque factories.
+            // Explicitly opt only those client interfaces into service location so Wolverine
+            // can keep rejecting accidental service location in all other dependencies.
+            foreach (var refitClientType in builder.Services
+                         .Where(service => service.ImplementationFactory is not null)
+                         .Select(service => service.ServiceType)
+                         .Where(IsRefitClient)
+                         .Distinct())
+            {
+                opts.CodeGeneration.AlwaysUseServiceLocationFor(refitClientType);
+            }
+
             // Metadata-only modes such as build-time OpenAPI generation don't provision a database connection.
             // In those modes we still want Wolverine to discover HTTP endpoints, but we must skip the durable
             // outbox and EF transaction wiring because both require a live PostgreSQL-backed data source.
@@ -72,4 +86,10 @@ public static class WolverineExtensions
         });
 
     }
+
+    private static bool IsRefitClient(Type serviceType) =>
+        serviceType.IsInterface && serviceType
+            .GetMethods()
+            .SelectMany(method => method.GetCustomAttributes(inherit: true))
+            .Any(attribute => attribute is HttpMethodAttribute);
 }
