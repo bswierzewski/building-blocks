@@ -2,10 +2,10 @@ using BuildingBlocks.Clerk.Client;
 using BuildingBlocks.Clerk.Client.Handlers;
 using BuildingBlocks.Clerk.Options;
 using BuildingBlocks.Core.Interfaces;
+using BuildingBlocks.Infrastructure.Wolverine.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Refit;
 
 namespace BuildingBlocks.Clerk;
 
@@ -26,7 +26,7 @@ public sealed class ClerkModule : IModule
 
         services.AddTransient<ClerkAuthenticationHandler>();
 
-        services.AddRefitClient<IClerkHttpClient>()
+        services.AddWolverineRefitClient<IClerkHttpClient>()
             .ConfigureHttpClient((serviceProvider, client) =>
             {
                 var options = serviceProvider.GetRequiredService<IOptions<ClerkOptions>>().Value;

@@ -2,7 +2,6 @@ using BuildingBlocks.Core.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
-using Refit;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.FluentValidation;
@@ -11,10 +10,38 @@ using Wolverine.Postgresql;
 namespace BuildingBlocks.Infrastructure.Wolverine.Extensions;
 
 /// <summary>
+/// Marks a DI service type that Wolverine is explicitly allowed to resolve through service location
+/// when its implementation is intentionally hidden behind an opaque factory registration.
+/// </summary>
+internal sealed record WolverineServiceLocationRegistration(Type ServiceType);
+
+/// <summary>
 /// Provides Wolverine bootstrap extension methods for modular ASP.NET Core applications.
 /// </summary>
 public static class WolverineExtensions
 {
+    /// <summary>
+    /// Allows Wolverine to resolve <typeparamref name="TService"/> from the scoped service provider.
+    /// Use this only for registrations intentionally backed by an opaque factory, such as typed HTTP clients.
+    /// The marker must be added before the application configures Wolverine.
+    /// </summary>
+    public static IServiceCollection AllowWolverineServiceLocationFor<TService>(this IServiceCollection services)
+        where TService : class
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        var serviceType = typeof(TService);
+        var alreadyRegistered = services.Any(descriptor =>
+            descriptor.ServiceType == typeof(WolverineServiceLocationRegistration) &&
+            descriptor.ImplementationInstance is WolverineServiceLocationRegistration registration &&
+            registration.ServiceType == serviceType);
+
+        if (!alreadyRegistered)
+            services.AddSingleton(new WolverineServiceLocationRegistration(serviceType));
+
+        return services;
+    }
+
     /// <summary>
     /// Registers Wolverine in metadata-only mode for scenarios such as build-time OpenAPI generation,
     /// where HTTP endpoints must be discovered without activating database-backed messaging infrastructure.
@@ -46,18 +73,6 @@ public static class WolverineExtensions
             // rather than chaining them into a single pipeline. Prevents unintentional fan-out.
             opts.MultipleHandlerBehavior = MultipleHandlerBehavior.Separated;
 
-            // Refit clients are registered by HttpClientFactory through opaque factories.
-            // Explicitly opt only those client interfaces into service location so Wolverine
-            // can keep rejecting accidental service location in all other dependencies.
-            foreach (var refitClientType in builder.Services
-                         .Where(service => service.ImplementationFactory is not null)
-                         .Select(service => service.ServiceType)
-                         .Where(IsRefitClient)
-                         .Distinct())
-            {
-                opts.CodeGeneration.AlwaysUseServiceLocationFor(refitClientType);
-            }
-
             // Metadata-only modes such as build-time OpenAPI generation don't provision a database connection.
             // In those modes we still want Wolverine to discover HTTP endpoints, but we must skip the durable
             // outbox and EF transaction wiring because both require a live PostgreSQL-backed data source.
@@ -75,6 +90,17 @@ public static class WolverineExtensions
                 opts.Policies.AutoApplyTransactions();
             }
 
+            // Some integrations intentionally hide their implementation behind a DI factory
+            // (for example Refit's HttpClientFactory registration). Only services explicitly
+            // marked by their owning module are allowed to use service location during codegen.
+            foreach (var serviceType in builder.Services
+                         .Where(service => service.ServiceType == typeof(WolverineServiceLocationRegistration))
+                         .Select(service => service.ImplementationInstance)
+                         .OfType<WolverineServiceLocationRegistration>()
+                         .Select(registration => registration.ServiceType)
+                         .Distinct())
+                opts.CodeGeneration.AlwaysUseServiceLocationFor(serviceType);
+
             // Scan each module assembly so Wolverine discovers its HTTP endpoints,
             // message handlers, and any module-specific middleware or policies.
             foreach (var module in modules)
@@ -86,10 +112,4 @@ public static class WolverineExtensions
         });
 
     }
-
-    private static bool IsRefitClient(Type serviceType) =>
-        serviceType.IsInterface && serviceType
-            .GetMethods()
-            .SelectMany(method => method.GetCustomAttributes(inherit: true))
-            .Any(attribute => attribute is HttpMethodAttribute);
 }
