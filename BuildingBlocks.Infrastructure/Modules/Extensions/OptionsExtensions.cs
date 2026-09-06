@@ -24,6 +24,17 @@ public static class OptionsExtensions
     }
 
     /// <summary>
+    /// Registers validated options and returns a strongly typed snapshot for use during service registration.
+    /// </summary>
+    public static TOptions AddValidatedOptionsSnapshot<TOptions>(this IServiceCollection services, IConfiguration configuration, string path)
+        where TOptions : class, new()
+    {
+        services.AddValidatedOptions<TOptions>(configuration, path);
+
+        return configuration.GetSection(path).Get<TOptions>() ?? new TOptions();
+    }
+
+    /// <summary>
     /// Registers a custom options validator and applies the standard validated options binding pipeline.
     /// </summary>
     public static IServiceCollection AddValidatedOptions<TOptions, TValidator>(this IServiceCollection services, IConfiguration configuration, string path)
