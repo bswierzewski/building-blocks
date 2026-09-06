@@ -6,6 +6,9 @@ using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.Soap.Middleware;
 
+public sealed record CachingSoapOptions<TClient>(TimeSpan Duration)
+    where TClient : ICommunicationObject;
+
 /// <summary>
 /// Caching SOAP middleware that caches operation results.
 /// Cache is per-client type with configurable TTL.
@@ -14,12 +17,12 @@ namespace BuildingBlocks.Soap.Middleware;
 public sealed class CachingSoapMiddleware<TClient>(
     IMemoryCache memoryCache,
     ILogger<CachingSoapMiddleware<TClient>> logger,
-    TimeSpan cacheDuration)
+    CachingSoapOptions<TClient> options)
     : SoapMiddleware<TClient> where TClient : ICommunicationObject
 {
     private readonly MemoryCacheEntryOptions _cacheOptions = new()
     {
-        AbsoluteExpirationRelativeToNow = cacheDuration,
+        AbsoluteExpirationRelativeToNow = options.Duration,
         Priority = CacheItemPriority.High,
         Size = 1
     };
@@ -49,7 +52,7 @@ public sealed class CachingSoapMiddleware<TClient>(
 
         memoryCache.Set(cacheKey, result, _cacheOptions);
         logger.LogInformation("SOAP {ClientName} {OperationName} - result cached for {Duration}",
-            typeof(TClient).Name, context.OperationName, cacheDuration);
+            typeof(TClient).Name, context.OperationName, options.Duration);
 
         return result;
     }
@@ -59,11 +62,8 @@ public sealed class CachingSoapMiddleware<TClient>(
     /// </summary>
     public static IServiceCollection Add(IServiceCollection services, TimeSpan cacheDuration)
     {
-        services.AddScoped<SoapMiddleware<TClient>>(sp =>
-            new CachingSoapMiddleware<TClient>(
-                sp.GetRequiredService<IMemoryCache>(),
-                sp.GetRequiredService<ILogger<CachingSoapMiddleware<TClient>>>(),
-                cacheDuration));
+        services.AddSingleton(new CachingSoapOptions<TClient>(cacheDuration));
+        services.AddScoped<SoapMiddleware<TClient>, CachingSoapMiddleware<TClient>>();
 
         return services;
     }
