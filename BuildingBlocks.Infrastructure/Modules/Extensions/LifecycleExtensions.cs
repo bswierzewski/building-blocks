@@ -30,14 +30,4 @@ public static class ModuleLifecycleExtensions
             await migration.MigrateAsync(services, cancellationToken);
     }
 
-    /// <summary>
-    /// Runs development-data seeders exposed by registered modules.
-    /// </summary>
-    public static async Task ApplyModuleDataSeedingAsync(
-        this IServiceProvider services,
-        CancellationToken cancellationToken = default)
-    {
-        foreach (var dataSeeder in services.GetServices<IModuleDataSeeder>())
-            await dataSeeder.SeedAsync(services, cancellationToken);
-    }
 }
