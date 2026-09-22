@@ -5,6 +5,7 @@ using Npgsql;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
 using Wolverine.FluentValidation;
+using Wolverine.Http;
 using Wolverine.Postgresql;
 
 namespace BuildingBlocks.Infrastructure.Wolverine.Extensions;
@@ -63,6 +64,9 @@ public static class WolverineExtensions
         NpgsqlDataSource? dataSource,
         Action<WolverineOptions>? configure = null)
     {
+        // Register attribute-driven Wolverine HTTP endpoints.
+        builder.Services.AddWolverineHttp();
+
         builder.Host.UseWolverine(opts =>
         {
             // Enable FluentValidation integration so message and HTTP handler validation

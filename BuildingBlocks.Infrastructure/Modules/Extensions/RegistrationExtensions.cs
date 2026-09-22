@@ -10,7 +10,7 @@ namespace BuildingBlocks.Infrastructure.Modules.Extensions;
 public static class ModuleRegistrationExtensions
 {
     /// <summary>
-    /// Registers the supplied modules together with their endpoint and migration contracts.
+    /// Registers the supplied modules together with their migration contracts.
     /// </summary>
     public static IServiceCollection RegisterModules(
         this IServiceCollection services,
@@ -20,9 +20,6 @@ public static class ModuleRegistrationExtensions
         foreach (var module in modules)
         {
             services.AddSingleton(module);
-
-            if (module is IModuleEndpoint endpointModule)
-                services.AddSingleton(endpointModule);
 
             if (module is IModuleMigration migrationModule)
                 services.AddSingleton(migrationModule);
