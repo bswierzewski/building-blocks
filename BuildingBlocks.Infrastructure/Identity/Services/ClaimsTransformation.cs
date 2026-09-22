@@ -5,7 +5,7 @@ namespace BuildingBlocks.Infrastructure.Identity.Services;
 
 /// <summary>
 /// Enriches authenticated principals with claims derived by the application.
-/// Claims supplied directly by the JWT, including the current organization,
+/// Claims supplied directly by the JWT, including the current tenant,
 /// remain available without additional transformation.
 /// </summary>
 public sealed class ClaimsTransformation(RolePermissionService rolePermissionService)
