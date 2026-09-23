@@ -19,15 +19,6 @@ public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICur
 
     public bool IsAuthenticated => Principal.Identity?.IsAuthenticated == true;
 
-    public IReadOnlySet<string> Roles =>
-        Principal.FindAll(CustomClaimTypes.Roles).Select(c => c.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-    public IReadOnlySet<string> Permissions =>
-        Principal.FindAll(CustomClaimTypes.Permission).Select(c => c.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-    public bool HasPermission(string permission) =>
-        Principal.HasClaim(CustomClaimTypes.Permission, permission);
-
     private static string? Normalize(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

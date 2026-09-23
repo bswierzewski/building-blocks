@@ -2,7 +2,6 @@ using System.Text;
 using BuildingBlocks.Core.Interfaces;
 using BuildingBlocks.Infrastructure.Identity.Options;
 using BuildingBlocks.Infrastructure.Identity.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +16,7 @@ namespace BuildingBlocks.Infrastructure.Identity.Extensions;
 public static class IdentityExtensions
 {
     /// <summary>
-    /// Adds JWT-based identity services backed by module-published roles.
+    /// Adds JWT-based authentication and current-user services.
     /// </summary>
     public static IServiceCollection AddIdentity(this IServiceCollection services, IConfiguration configuration)
     {
@@ -31,18 +30,15 @@ public static class IdentityExtensions
 
         services.TryAddScoped<ICurrentUser, CurrentUser>();
         services.TryAddScoped<ICurrentTenant, CurrentTenant>();
-        services.TryAddSingleton<RolePermissionService>();
-        services.TryAddTransient<IClaimsTransformation, ClaimsTransformation>();
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                // Preserve JWT claim names as-is so CurrentUser can read claims directly ('sub', 'roles').
+                // Preserve JWT claim names as-is so application services can read them directly.
                 options.MapInboundClaims = false;
 
                 options.TokenValidationParameters.NameClaimType = CustomClaimTypes.Sub;
-                options.TokenValidationParameters.RoleClaimType = CustomClaimTypes.Roles;
                 options.TokenValidationParameters.ClockSkew = TimeSpan.Zero;
 
                 options.Authority = identityOptions.Authority;
