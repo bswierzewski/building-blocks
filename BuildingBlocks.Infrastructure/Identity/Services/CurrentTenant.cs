@@ -8,9 +8,5 @@ namespace BuildingBlocks.Infrastructure.Identity.Services;
 /// </summary>
 public sealed class CurrentTenant(IHttpContextAccessor httpContextAccessor) : ICurrentTenant
 {
-    public Guid? Id => Guid.TryParse(
-        httpContextAccessor.HttpContext?.User.FindFirst(CustomClaimTypes.TenantId)?.Value,
-        out var tenantId)
-            ? tenantId
-            : null;
+    public string? Id => httpContextAccessor.HttpContext?.User.FindFirst(CustomClaimTypes.TenantId)?.Value;
 }
