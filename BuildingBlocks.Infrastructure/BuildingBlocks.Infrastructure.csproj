@@ -6,8 +6,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Refit exception handling -->
+    <!-- Refit -->
     <PackageReference Include="Refit" />
+    <PackageReference Include="Refit.Reflection" />
     <PackageReference Include="Refit.HttpClientFactory" />
 
     <!-- Authentication -->

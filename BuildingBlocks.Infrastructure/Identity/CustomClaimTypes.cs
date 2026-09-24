@@ -15,7 +15,7 @@ public static class CustomClaimTypes
     /// <summary>Display name assigned to the user ('name' in JWT).</summary>
     public const string Name = "name";
 
-    /// <summary>Tenant identifier assigned by application metadata ('tenantId' in JWT).</summary>
-    public const string TenantId = "tenantId";
+    /// <summary>Tenant identifier from the user's Clerk public metadata ('tenant_id' in JWT and metadata).</summary>
+    public const string TenantId = "tenant_id";
 
 }
