@@ -23,6 +23,7 @@
     <!-- Npgsql -->
     <PackageReference Include="Npgsql" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="EFCore.NamingConventions" />
 
     <!-- Serilog -->
     <PackageReference Include="Serilog.AspNetCore" />

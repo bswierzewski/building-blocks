@@ -28,8 +28,8 @@ public static class IdentityExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.TryAddScoped<ICurrentUser, CurrentUser>();
-        services.TryAddScoped<ICurrentTenant, CurrentTenant>();
+        // Stateless (reads the ambient HttpContext), and singleton so audit interceptors can resolve it from the root provider.
+        services.TryAddSingleton<ICurrentUser, CurrentUser>();
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

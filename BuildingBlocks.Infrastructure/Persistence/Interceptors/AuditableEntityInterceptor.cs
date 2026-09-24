@@ -7,9 +7,13 @@ namespace BuildingBlocks.Infrastructure.Persistence.Interceptors;
 
 /// <summary>
 /// EF Core interceptor that automatically manages audit fields on IAuditable entities when saving changes.
+/// Reads the current user when changes are saved, including for DbContexts created by Wolverine.
 /// </summary>
-public sealed class AuditableEntityInterceptor(ICurrentUser currentUser, TimeProvider dateTime) : SaveChangesInterceptor
+public sealed class AuditableEntityInterceptor(ICurrentUser currentUser, TimeProvider clock) : SaveChangesInterceptor
 {
+    /// <summary>Audit user recorded for changes made without an authenticated user.</summary>
+    public const string SystemUser = "system";
+
     /// <summary>
     /// Intercepts synchronous SaveChanges calls to update audit fields.
     /// </summary>
@@ -37,26 +41,27 @@ public sealed class AuditableEntityInterceptor(ICurrentUser currentUser, TimePro
     private void UpdateEntities(DbContext? context)
     {
         if (context is null)
-        {
             return;
-        }
+
+        var utcNow = clock.GetUtcNow();
+        var userId = currentUser.Id;
+
+        // Writes outside a request (e.g. message handlers) are attributed to the system.
+        var author = string.IsNullOrWhiteSpace(userId) ? SystemUser : userId;
 
         foreach (var entry in context.ChangeTracker.Entries<IAuditable>())
         {
-            if (entry.State is EntityState.Added or EntityState.Modified || entry.HasChangedOwnedEntities())
+            if (entry.State is not (EntityState.Added or EntityState.Modified) && !entry.HasChangedOwnedEntities())
+                continue;
+
+            if (entry.State == EntityState.Added)
             {
-                var utcNow = dateTime.GetUtcNow();
-                var currentUserId = currentUser.Id;
-
-                if (entry.State == EntityState.Added)
-                {
-                    entry.Entity.CreatedBy = currentUserId;
-                    entry.Entity.CreatedAt = utcNow;
-                }
-
-                entry.Entity.ModifiedBy = currentUserId;
-                entry.Entity.ModifiedAt = utcNow;
+                entry.Entity.CreatedBy = author;
+                entry.Entity.CreatedAt = utcNow;
             }
+
+            entry.Entity.ModifiedBy = author;
+            entry.Entity.ModifiedAt = utcNow;
         }
     }
 }
