@@ -9,11 +9,11 @@ namespace BuildingBlocks.Clerk.Client;
 public interface IClerkHttpClient
 {
     /// <summary>
-    /// Finds Clerk users with the supplied user ID.
+    /// Finds Clerk users with the supplied email address.
     /// </summary>
-    [Get("/v1/users?user_id={userId}")]
-    Task<IReadOnlyList<ClerkUserResponse>> GetUsersByUserIdAsync(
-        string userId,
+    [Get("/v1/users?email_address[]={email}")]
+    Task<IReadOnlyList<ClerkUserResponse>> GetUsersByEmailAsync(
+        string email,
         CancellationToken cancellationToken = default);
 
     /// <summary>
