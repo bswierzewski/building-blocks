@@ -16,6 +16,7 @@
 
     <!-- ASP.NET Core OpenAPI -->
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="MicroElements.AspNetCore.OpenApi.FluentValidation" />
 
     <!-- Entity Framework Core -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
