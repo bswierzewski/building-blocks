@@ -6,7 +6,7 @@ namespace BuildingBlocks.Core.Exceptions;
 public class NotFoundException : Exception
 {
     public NotFoundException()
-        : base() { }
+        : base("Nie znaleziono żądanego zasobu.") { }
 
     public NotFoundException(string message)
         : base(message) { }

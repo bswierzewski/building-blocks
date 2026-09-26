@@ -1,4 +1,6 @@
+using System.Globalization;
 using BuildingBlocks.Core.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -66,6 +68,9 @@ public static class WolverineExtensions
     {
         // Register attribute-driven Wolverine HTTP endpoints.
         builder.Services.AddWolverineHttp();
+
+        // Validation messages are shown to users as they are, so use FluentValidation's built-in Polish translations.
+        ValidatorOptions.Global.LanguageManager.Culture = new CultureInfo("pl");
 
         builder.Host.UseWolverine(opts =>
         {

@@ -5,7 +5,8 @@ namespace BuildingBlocks.Core.Exceptions;
 /// </summary>
 public class DomainException : Exception
 {
-    public DomainException() { }
+    public DomainException()
+        : base("Naruszono regułę biznesową.") { }
 
     public DomainException(string message)
         : base(message) { }
