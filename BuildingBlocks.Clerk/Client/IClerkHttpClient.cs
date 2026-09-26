@@ -17,6 +17,17 @@ public interface IClerkHttpClient
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets Clerk users by their identifiers. Clerk accepts up to 100 identifiers and returns 10 users unless a
+    /// larger <paramref name="limit"/> is given (max 500), so callers should pass at most 100 ids and a matching limit.
+    /// </summary>
+    [Get("/v1/users")]
+    Task<IReadOnlyList<ClerkUserResponse>> GetUsersByIdsAsync(
+        [Query(CollectionFormat.Multi)]
+        [AliasAs("user_id[]")] IEnumerable<string> userIds,
+        [AliasAs("limit")] int limit = 100,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Updates public metadata for a Clerk user.
     /// </summary>
     [Patch("/v1/users/{userId}/metadata")]
