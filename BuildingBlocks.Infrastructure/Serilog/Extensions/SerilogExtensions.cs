@@ -45,6 +45,7 @@ public static class SerilogExtensions
                     .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
                     .MinimumLevel.Override("System", LogEventLevel.Warning)
+                    .MinimumLevel.Override("Wolverine", LogEventLevel.Warning)
                     .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information);
             }
 
