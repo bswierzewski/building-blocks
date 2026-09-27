@@ -1,6 +1,9 @@
 using System.Globalization;
+using System.Reflection;
 using BuildingBlocks.Core.Interfaces;
 using FluentValidation;
+using JasperFx;
+using JasperFx.CodeGeneration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -43,6 +46,30 @@ public static class WolverineExtensions
             services.AddSingleton(new WolverineServiceLocationRegistration(serviceType));
 
         return services;
+    }
+
+    /// <summary>
+    /// Loads handler code pre-generated at build time (<c>dotnet run -- codegen write</c>) outside Development,
+    /// so production startup skips Roslyn compilation. Development keeps generating it on the fly.
+    /// Wolverine is configured from this library, so <paramref name="hostAssembly"/> must be the host
+    /// assembly that contains <c>Internal/Generated</c>. Only call this from hosts that run codegen in their build.
+    /// </summary>
+    public static void UsePreGeneratedCode(this WolverineOptions opts, Assembly hostAssembly)
+    {
+        ArgumentNullException.ThrowIfNull(opts);
+        ArgumentNullException.ThrowIfNull(hostAssembly);
+
+        opts.ApplicationAssembly = hostAssembly;
+
+        opts.Services.CritterStackDefaults(x =>
+        {
+            x.Production.GeneratedCodeMode = TypeLoadMode.Static;
+
+            // Fail at startup, not on the first request, if a handler was not pre-generated.
+            x.Production.AssertAllPreGeneratedTypesExist = true;
+
+            x.Development.GeneratedCodeMode = TypeLoadMode.Dynamic;
+        });
     }
 
     /// <summary>
