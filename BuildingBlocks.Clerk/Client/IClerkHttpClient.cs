@@ -35,23 +35,4 @@ public interface IClerkHttpClient
         string userId,
         [Body] UpdateClerkUserMetadataRequest request,
         CancellationToken cancellationToken = default);
-
-    // Testing endpoints, is only used by integration tests.
-
-    /// <summary>
-    /// Creates a new Clerk session for the supplied user.
-    /// </summary>
-    [Post("/v1/sessions")]
-    Task<CreateClerkSessionResponse> CreateSessionAsync(
-        [Body] CreateClerkSessionRequest request,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Creates a JWT for an existing Clerk session.
-    /// </summary>
-    [Post("/v1/sessions/{sessionId}/tokens")]
-    Task<CreateClerkSessionTokenResponse> CreateSessionTokenAsync(
-        string sessionId,
-        [Body] CreateClerkSessionTokenRequest request,
-        CancellationToken cancellationToken = default);
 }
