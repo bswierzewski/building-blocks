@@ -124,16 +124,8 @@ public static class HostingExtensions
     }
 
     // Build details are injected by the Docker build (see BuildOptions).
-    private static VersionResponse GetVersion(BuildOptions build, IHostEnvironment environment)
-    {
-        return new VersionResponse(
-            OrUnknown(build.Version),
-            OrUnknown(build.Sha),
-            build.BuiltAt,
-            environment.EnvironmentName);
-
-        static string OrUnknown(string? value) => string.IsNullOrWhiteSpace(value) ? "unknown" : value;
-    }
+    private static VersionResponse GetVersion(BuildOptions build, IHostEnvironment environment) =>
+        new(build.Version, build.Sha, build.BuiltAt, environment.EnvironmentName);
 
     private static async Task<Results<Ok<ApplicationHealthResponse>, JsonHttpResult<ApplicationHealthResponse>, EmptyHttpResult>> GetApplicationHealth(
         HealthCheckService healthChecks,
