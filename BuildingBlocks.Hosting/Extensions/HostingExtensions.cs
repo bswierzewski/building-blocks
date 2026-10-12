@@ -1,12 +1,14 @@
-using System.Reflection;
 using BuildingBlocks.Hosting.Models;
+using BuildingBlocks.Hosting.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -24,6 +26,9 @@ public static class HostingExtensions
         builder.ConfigureOpenTelemetry();
 
         builder.AddDefaultHealthChecks();
+
+        builder.Services.AddOptions<BuildOptions>()
+            .Bind(builder.Configuration.GetSection(BuildOptions.SectionName));
 
         builder.Services.AddServiceDiscovery();
 
@@ -106,11 +111,11 @@ public static class HostingExtensions
         .Produces<ApplicationHealthResponse>(StatusCodes.Status200OK)
         .Produces<ApplicationHealthResponse>(StatusCodes.Status503ServiceUnavailable);
 
-        app.MapGet(VersionEndpointPath, (IHostEnvironment environment) =>
-            TypedResults.Ok(GetVersion(environment)))
+        app.MapGet(VersionEndpointPath, (IOptions<BuildOptions> build, IHostEnvironment environment) =>
+            TypedResults.Ok(GetVersion(build.Value, environment)))
         .WithName("GetVersion")
         .WithSummary("Get the application version.")
-        .WithDescription("Returns the source revision used to build the application.")
+        .WithDescription("Returns the version, source revision, build date and environment of the running application.")
         .WithTags("System")
         .AllowAnonymous()
         .Produces<VersionResponse>(StatusCodes.Status200OK);
@@ -118,25 +123,16 @@ public static class HostingExtensions
         return app;
     }
 
-    private static VersionResponse GetVersion(IHostEnvironment environment)
+    // Build details are injected by the Docker build (see BuildOptions).
+    private static VersionResponse GetVersion(BuildOptions build, IHostEnvironment environment)
     {
-        var assembly = Assembly.Load(environment.ApplicationName);
-        var informationalVersion = assembly
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-            ?.InformationalVersion;
+        return new VersionResponse(
+            OrUnknown(build.Version),
+            OrUnknown(build.Sha),
+            build.BuiltAt,
+            environment.EnvironmentName);
 
-        if (string.IsNullOrWhiteSpace(informationalVersion))
-        {
-            return new VersionResponse("unknown");
-        }
-
-        var sourceRevisionSeparator = informationalVersion.LastIndexOf('+');
-        if (sourceRevisionSeparator < 0 || sourceRevisionSeparator == informationalVersion.Length - 1)
-        {
-            return new VersionResponse("unknown");
-        }
-
-        return new VersionResponse(informationalVersion[(sourceRevisionSeparator + 1)..]);
+        static string OrUnknown(string? value) => string.IsNullOrWhiteSpace(value) ? "unknown" : value;
     }
 
     private static async Task<Results<Ok<ApplicationHealthResponse>, JsonHttpResult<ApplicationHealthResponse>, EmptyHttpResult>> GetApplicationHealth(
