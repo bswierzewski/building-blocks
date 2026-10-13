@@ -16,7 +16,7 @@ namespace BuildingBlocks.Infrastructure.Exceptions.Extensions;
 /// <see cref="ToProblemDetails" /> only decides the status and the message: our own exceptions (Domain, NotFound,
 /// Forbidden) return their Polish message, everything else stays in the logs. <see cref="AddDiagnosticInformation" />
 /// then gives every response, ours or the framework's, the Polish title and, when there is no message, the Polish
-/// detail for its status. See Docs/error-handling.md.
+/// detail for its status. See Docs/backend/error-handling.md.
 /// </remarks>
 public static class ProblemDetailsExtensions
 {
