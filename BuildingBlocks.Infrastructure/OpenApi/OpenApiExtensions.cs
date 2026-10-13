@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OpenApi;
@@ -88,6 +89,40 @@ public static class OpenApiExtensions
 
                 return new OpenApiSchemaReference(ProblemDetailsSchemaName, context.Document);
             }
+        });
+
+        return options;
+    }
+
+    /// <summary>
+    /// Describes every enum as <c>oneOf</c> of <c>const</c> members instead of a plain <c>enum</c> list. The <c>title</c>
+    /// is the member name and the <c>description</c> is its label from <see cref="System.ComponentModel.DataAnnotations.DisplayAttribute"/> (the name when
+    /// there is none), so generated clients get the labels of dropdown options without an endpoint serving them.
+    /// </summary>
+    public static OpenApiOptions AddEnumLabels(this OpenApiOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        options.AddSchemaTransformer((schema, context, _) =>
+        {
+            var enumType = Nullable.GetUnderlyingType(context.JsonTypeInfo.Type) ?? context.JsonTypeInfo.Type;
+            if (!enumType.IsEnum || schema is not OpenApiSchema openApiSchema || openApiSchema.Enum is not { Count: > 0 })
+                return Task.CompletedTask;
+
+            openApiSchema.OneOf = enumType
+                .GetFields(BindingFlags.Public | BindingFlags.Static)
+                .OrderBy(field => field.MetadataToken)
+                .Select(field => (IOpenApiSchema)new OpenApiSchema
+                {
+                    Const = field.Name,
+                    Title = field.Name,
+                    Description = field.GetCustomAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>()?.GetName() ?? field.Name
+                })
+                .ToList();
+            openApiSchema.Enum = null;
+            openApiSchema.Type = null;
+
+            return Task.CompletedTask;
         });
 
         return options;
