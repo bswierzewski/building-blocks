@@ -1,4 +1,3 @@
-using BuildingBlocks.Core.Querying;
 using FluentValidation;
 
 namespace BuildingBlocks.Infrastructure.Querying.Validators;
