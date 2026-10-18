@@ -9,9 +9,10 @@ namespace BuildingBlocks.Clerk.Client;
 public interface IClerkHttpClient
 {
     /// <summary>
-    /// Finds Clerk users with the supplied email address.
+    /// Finds Clerk users with the supplied email address. Clerk names the parameter <c>email_address</c>; with brackets
+    /// (<c>email_address[]</c>) it ignores the filter and returns every user, so callers still check the addresses.
     /// </summary>
-    [Get("/v1/users?email_address[]={email}")]
+    [Get("/v1/users?email_address={email}")]
     Task<IReadOnlyList<ClerkUserResponse>> GetUsersByEmailAsync(
         string email,
         CancellationToken cancellationToken = default);
@@ -23,7 +24,7 @@ public interface IClerkHttpClient
     [Get("/v1/users")]
     Task<IReadOnlyList<ClerkUserResponse>> GetUsersByIdsAsync(
         [Query(CollectionFormat.Multi)]
-        [AliasAs("user_id[]")] IEnumerable<string> userIds,
+        [AliasAs("user_id")] IEnumerable<string> userIds,
         [AliasAs("limit")] int limit = 100,
         CancellationToken cancellationToken = default);
 
