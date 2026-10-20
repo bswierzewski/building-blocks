@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace BuildingBlocks.Storage.Options;
 
 /// <summary>
-/// Configures access to an S3-compatible object store (AWS S3, SeaweedFS, ...).
+/// Configures access to an S3-compatible object store (AWS S3, Backblaze B2, ...).
 /// Switching between a local emulator and production only changes these values.
 /// </summary>
 public sealed class StorageOptions
@@ -34,14 +34,10 @@ public sealed class StorageOptions
     public string? Bucket { get; set; }
 
     /// <summary>
-    /// Addresses the bucket in the path (<c>host/bucket/key</c>) instead of the host name. Emulators usually need it.
+    /// Addresses the bucket in the path (<c>host/bucket/key</c>) instead of the host name. Leave it empty to decide
+    /// automatically: path style when <see cref="ServiceUrl"/> is set (emulators and most S3-compatible services need it),
+    /// the host style of AWS S3 otherwise.
     /// </summary>
-    // @env: Storage__ForcePathStyle=false
-    public bool ForcePathStyle { get; set; }
-
-    /// <summary>
-    /// Creates the bucket on API startup when it does not exist. Meant for local development.
-    /// </summary>
-    // @env: Storage__EnsureBucket=false
-    public bool EnsureBucket { get; set; }
+    // @env: Storage__ForcePathStyle=
+    public bool? ForcePathStyle { get; set; }
 }

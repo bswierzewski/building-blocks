@@ -6,7 +6,6 @@ using BuildingBlocks.Storage.Options;
 using BuildingBlocks.Storage.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Storage;
@@ -36,19 +35,12 @@ public sealed class StorageModule : IModule
             .AddCheck<StorageHealthCheck>("storage", tags: ["ready"]);
     }
 
-    public async Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+    public Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
         // Reading the value validates the options and fails fast on a missing key or bucket name.
-        var options = services.GetRequiredService<IOptions<StorageOptions>>().Value;
+        // The bucket itself is created outside the application (the cloud console, or the AppHost locally).
+        _ = services.GetRequiredService<IOptions<StorageOptions>>().Value;
 
-        if (!options.EnsureBucket)
-            return;
-
-        var created = await services.GetRequiredService<S3FileStorage>().EnsureBucketAsync(cancellationToken);
-
-        if (created)
-            services.GetRequiredService<ILoggerFactory>()
-                .CreateLogger<StorageModule>()
-                .LogInformation("Created storage bucket {Bucket}.", options.Bucket);
+        return Task.CompletedTask;
     }
 }

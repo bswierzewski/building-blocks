@@ -25,7 +25,7 @@ public sealed class PdfModule : IModule
 
     public void AddServices(IServiceCollection services, IConfiguration configuration)
     {
-        // @env: Gotenberg__ServiceUrl=http://localhost:3000
+        // @env: Gotenberg__ServiceUrl=
         // @env: Gotenberg__BasicAuthUsername=
         // @env: Gotenberg__BasicAuthPassword=
         //

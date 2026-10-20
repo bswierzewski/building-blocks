@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace BuildingBlocks.Storage.Services;
 
 /// <summary>
-/// <see cref="IFileStorage"/> on top of the AWS S3 SDK. Works with AWS S3 and S3-compatible services such as SeaweedFS.
+/// <see cref="IFileStorage"/> on top of the AWS S3 SDK. Works with AWS S3 and S3-compatible services such as Backblaze B2.
 /// </summary>
 public sealed class S3FileStorage(IOptions<StorageOptions> options) : IFileStorage, IDisposable
 {
@@ -196,19 +196,6 @@ public sealed class S3FileStorage(IOptions<StorageOptions> options) : IFileStora
             }
         });
 
-    /// <summary>
-    /// Creates the configured bucket when it does not exist; returns whether it had to be created.
-    /// </summary>
-    public async Task<bool> EnsureBucketAsync(CancellationToken cancellationToken = default)
-    {
-        if (await BucketExistsAsync(cancellationToken))
-            return false;
-
-        await ExecuteAsync("create bucket", Bucket, () => Client.PutBucketAsync(Bucket, cancellationToken));
-
-        return true;
-    }
-
     public void Dispose()
     {
         if (_client.IsValueCreated)
@@ -219,7 +206,7 @@ public sealed class S3FileStorage(IOptions<StorageOptions> options) : IFileStora
     {
         var config = new AmazonS3Config
         {
-            ForcePathStyle = options.ForcePathStyle,
+            ForcePathStyle = options.ForcePathStyle ?? !string.IsNullOrWhiteSpace(options.ServiceUrl),
 
             // Some S3-compatible services reject the integrity checksums the SDK adds by default.
             RequestChecksumCalculation = RequestChecksumCalculation.WHEN_REQUIRED,
