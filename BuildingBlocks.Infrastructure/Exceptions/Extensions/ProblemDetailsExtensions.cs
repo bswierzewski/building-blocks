@@ -109,7 +109,7 @@ public static class ProblemDetailsExtensions
         {
             var problem = context.ProblemDetails;
 
-            problem.Extensions.TryAdd("traceId", Activity.Current?.Id ?? context.HttpContext.TraceIdentifier);
+            problem.Extensions.TryAdd("traceId", Activity.Current?.TraceId.ToString() ?? context.HttpContext.TraceIdentifier);
             problem.Extensions.TryAdd("timestamp", DateTimeOffset.UtcNow);
             problem.Instance ??= context.HttpContext.Request.Path;
 
