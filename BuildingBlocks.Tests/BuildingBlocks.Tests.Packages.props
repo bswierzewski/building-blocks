@@ -10,6 +10,6 @@
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.14.0" />
 
     <!-- End-To-End Testing -->
-    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.5.3" />
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.6.2" />
   </ItemGroup>
 </Project>
