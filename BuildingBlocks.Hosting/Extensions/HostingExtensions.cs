@@ -32,11 +32,9 @@ public static class HostingExtensions
 
         builder.Services.AddServiceDiscovery();
 
-        builder.Services.ConfigureHttpClientDefaults(http =>
-        {
-            http.AddStandardResilienceHandler();
-            http.AddServiceDiscovery();
-        });
+        // Resilience is not added here: every client picks the policy it needs (AddStandardResilienceHandler),
+        // because a default tuned for short API calls is wrong for slow ones such as PDF generation.
+        builder.Services.ConfigureHttpClientDefaults(http => http.AddServiceDiscovery());
 
         return builder;
     }

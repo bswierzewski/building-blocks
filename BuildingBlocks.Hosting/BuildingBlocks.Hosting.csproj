@@ -10,7 +10,6 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 
 		<!-- Microsoft Extensions -->
-		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
 		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
 
 		<!-- OpenTelemetry -->

@@ -33,6 +33,7 @@ public sealed class ClerkModule : IModule
                 client.BaseAddress = new Uri(options.ApiBaseUrl.TrimEnd('/') + "/");
                 client.Timeout = TimeSpan.FromSeconds(30);
             })
-            .AddHttpMessageHandler<ClerkAuthenticationHandler>();
+            .AddHttpMessageHandler<ClerkAuthenticationHandler>()
+            .AddStandardResilienceHandler();
     }
 }
