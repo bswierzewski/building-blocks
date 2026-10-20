@@ -7,6 +7,7 @@ using Gotenberg.Sharp.API.Client.Domain.Settings;
 using Gotenberg.Sharp.API.Client.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Pdf;
@@ -52,15 +53,31 @@ public sealed class PdfModule : IModule
         // so Wolverine-generated code must resolve it from DI.
         services.AllowWolverineServiceLocationFor<IPdfGenerator>();
 
-        services.AddHealthChecks()
-            .AddCheck<GotenbergHealthCheck>("gotenberg", tags: ["ready"]);
+        // The PDF service is optional until something is configured, so an environment that has none yet can still run.
+        if (IsConfigured(configuration))
+            services.AddHealthChecks()
+                .AddCheck<GotenbergHealthCheck>("gotenberg", tags: ["ready"]);
     }
 
     public Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
-        // Reading the value validates the options and fails fast on a missing service address.
+        if (!IsConfigured(services.GetRequiredService<IConfiguration>()))
+        {
+            services.GetRequiredService<ILoggerFactory>()
+                .CreateLogger<PdfModule>()
+                .LogWarning(
+                    "The PDF service is not configured (no {Section} settings), so generating PDF files will fail until it is.",
+                    SectionName);
+
+            return Task.CompletedTask;
+        }
+
+        // Once any setting is present, reading the value validates the options and fails fast on a missing service address.
         _ = services.GetRequiredService<IOptions<GotenbergSharpClientOptions>>().Value;
 
         return Task.CompletedTask;
     }
+
+    private static bool IsConfigured(IConfiguration configuration)
+        => configuration.GetSection(SectionName).Exists();
 }
