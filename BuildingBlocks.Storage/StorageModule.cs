@@ -1,0 +1,54 @@
+using BuildingBlocks.Core.Interfaces;
+using BuildingBlocks.Infrastructure.Wolverine.Extensions;
+using BuildingBlocks.Storage.Health;
+using BuildingBlocks.Storage.Interfaces;
+using BuildingBlocks.Storage.Options;
+using BuildingBlocks.Storage.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+namespace BuildingBlocks.Storage;
+
+/// <summary>
+/// Registers the S3-backed file storage.
+/// </summary>
+public sealed class StorageModule : IModule
+{
+    public string Name => "Storage";
+
+    public void AddServices(IServiceCollection services, IConfiguration configuration)
+    {
+        // Not validated on start: the migrator and the seeder load every module but have no storage configuration.
+        // The API reads the options in InitializeAsync, so a bad configuration still stops it at startup.
+        services.AddOptions<StorageOptions>()
+            .Bind(configuration.GetSection(StorageOptions.SectionName))
+            .ValidateDataAnnotations();
+
+        services.AddSingleton<S3FileStorage>();
+        services.AddSingleton<IFileStorage>(provider => provider.GetRequiredService<S3FileStorage>());
+
+        // The alias above is an opaque factory registration, so Wolverine-generated code must resolve it from DI.
+        services.AllowWolverineServiceLocationFor<IFileStorage>();
+
+        services.AddHealthChecks()
+            .AddCheck<StorageHealthCheck>("storage", tags: ["ready"]);
+    }
+
+    public async Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+    {
+        // Reading the value validates the options and fails fast on a missing key or bucket name.
+        var options = services.GetRequiredService<IOptions<StorageOptions>>().Value;
+
+        if (!options.EnsureBucket)
+            return;
+
+        var created = await services.GetRequiredService<S3FileStorage>().EnsureBucketAsync(cancellationToken);
+
+        if (created)
+            services.GetRequiredService<ILoggerFactory>()
+                .CreateLogger<StorageModule>()
+                .LogInformation("Created storage bucket {Bucket}.", options.Bucket);
+    }
+}

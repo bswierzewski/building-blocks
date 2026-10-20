@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BuildingBlocks.Core\BuildingBlocks.Core.csproj" />
     <ProjectReference Include="..\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="..\BuildingBlocks.Storage\BuildingBlocks.Storage.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +20,7 @@
     <PackageReference Include="Alba" />
     <PackageReference Include="Npgsql" />
     <PackageReference Include="Respawn" />
+    <PackageReference Include="Testcontainers" />
     <PackageReference Include="Testcontainers.PostgreSql" />
 
     <!-- End-To-End Testing -->
