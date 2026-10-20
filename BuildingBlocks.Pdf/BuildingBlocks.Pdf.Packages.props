@@ -1,0 +1,6 @@
+<Project>
+  <ItemGroup>
+    <!-- Gotenberg (HTML to PDF) -->
+    <PackageVersion Include="Gotenberg.Sharp.API.Client" Version="3.1.0" />
+  </ItemGroup>
+</Project>

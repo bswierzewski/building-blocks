@@ -23,4 +23,5 @@
   <Import Project="BuildingBlocks.Soap\BuildingBlocks.Soap.Packages.props" Condition="Exists('BuildingBlocks.Soap\BuildingBlocks.Soap.Packages.props')" />
   <Import Project="BuildingBlocks.Clerk\BuildingBlocks.Clerk.Packages.props" Condition="Exists('BuildingBlocks.Clerk\BuildingBlocks.Clerk.Packages.props')" />
   <Import Project="BuildingBlocks.Storage\BuildingBlocks.Storage.Packages.props" Condition="Exists('BuildingBlocks.Storage\BuildingBlocks.Storage.Packages.props')" />
+  <Import Project="BuildingBlocks.Pdf\BuildingBlocks.Pdf.Packages.props" Condition="Exists('BuildingBlocks.Pdf\BuildingBlocks.Pdf.Packages.props')" />
 </Project>

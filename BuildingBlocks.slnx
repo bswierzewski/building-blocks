@@ -5,5 +5,6 @@
   <Project Path="BuildingBlocks.Clerk/BuildingBlocks.Clerk.csproj" />
   <Project Path="BuildingBlocks.Soap/BuildingBlocks.Soap.csproj" />
   <Project Path="BuildingBlocks.Storage/BuildingBlocks.Storage.csproj" />
+  <Project Path="BuildingBlocks.Pdf/BuildingBlocks.Pdf.csproj" />
   <Project Path="BuildingBlocks.Tests/BuildingBlocks.Tests.csproj" />
 </Solution>
