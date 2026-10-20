@@ -11,7 +11,7 @@
     <PackageVersion Include="Refit.Reflection" Version="15.2.0" />
 
     <!-- Security overrides for transitive dependencies -->
-    <PackageVersion Include="MessagePack" Version="3.1.8" />
+    <PackageVersion Include="MessagePack" Version="3.1.12" />
     <PackageVersion Include="Microsoft.OpenApi" Version="2.9.0" />
     <PackageVersion Include="SSH.NET" Version="2026.0.0" />
   </ItemGroup>
