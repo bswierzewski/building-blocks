@@ -1,4 +1,5 @@
 using Alba;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -11,6 +12,11 @@ namespace BuildingBlocks.Tests.Integration.Fixtures;
 public class HostFixture<TEntryPoint> : IAsyncLifetime
     where TEntryPoint : class
 {
+    /// <summary>
+    /// Settings file the test project copies to its output directory; loaded after every other source when present.
+    /// </summary>
+    public const string TestSettingsFile = "appsettings.Testing.json";
+
     private readonly SemaphoreSlim _hostLock = new(1, 1);
     private bool _started;
 
@@ -53,6 +59,11 @@ public class HostFixture<TEntryPoint> : IAsyncLifetime
 
             Host = await AlbaHost.For<TEntryPoint>(builder =>
             {
+                // The last layer of settings: whatever the developer's machine provides (user secrets, local files) must not
+                // reach the tests, so the test project pins the values they depend on in this file.
+                builder.ConfigureAppConfiguration((_, config) =>
+                    config.AddJsonFile(Path.Combine(AppContext.BaseDirectory, TestSettingsFile), optional: true));
+
                 builder.ConfigureServices((_, services) => configureServices(services));
             }, [ConfigurationOverride.Create(configuration)]);
 
